@@ -6,7 +6,7 @@ services:
   - docker
 
 before_install:
-  - docker build -t cxz/delf-extract .
+  - docker build -t aamaia/delf-extract .
   - docker ps -a
 
 script: 
@@ -14,4 +14,10 @@ script:
 
 install:
   - echo 'install'
+
+after_success:
+  - if [ "$TRAVIS_BRANCH" == "master" ]; then
+    docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
+    docker push aamaia/delf-extract;
+    fi
 
