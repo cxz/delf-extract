@@ -48,7 +48,6 @@ RUN git clone https://github.com/tensorflow/models.git $TENSORFLOW_MODELS_ROOT &
     
 ENV PYTHONPATH /delf-extract/$TENSORFLOW_MODELS_ROOT/research:$PYTHONPATH
 
-RUN python -c 'import delf'
 
 
 
