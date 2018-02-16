@@ -32,7 +32,7 @@ ENV TF_MODELS_REVISION=4c05414826e87f3b8ef05
 ENV TENSORFLOW_MODELS_ROOT models
 
 RUN git clone https://github.com/tensorflow/models.git $TENSORFLOW_MODELS_ROOT && \
-    git checkout $TF_MODELS_REVISION -- $TENSORFLOW_MODELS_ROOT && \
+    cd models && git checkout $TF_MODELS_REVISION -- $TENSORFLOW_MODELS_ROOT && cd .. && \
     pip install -e $TENSORFLOW_MODELS_ROOT/research/slim && \
     pip install -e $TENSORFLOW_MODELS_ROOT/research/delf && \
     mkdir -p tmp && wget https://github.com/google/protobuf/releases/download/v3.3.0/protoc-3.3.0-linux-x86_64.zip -O protoc.zip && unzip protoc.zip -d tmp && \
@@ -44,5 +44,6 @@ RUN git clone https://github.com/tensorflow/models.git $TENSORFLOW_MODELS_ROOT &
     python -c 'import delf'
 
 ENV PYTHONPATH $TENSORFLOW_MODELS_ROOT/research:$PYTHONPATH
+
 
 
