@@ -1,7 +1,9 @@
-FROM nvidia/cuda:9.0-devel-ubuntu16.04
+FROM nvidia/cuda:9.0-cudnn7-devel-ubuntu16.04
 MAINTAINER Alexandre Maia <alexandre.maia@gmail.com>
 
-RUN apt-get update -y && apt-get install -y \
+RUN apt-get update && apt-get install -y \
+        unzip \
+        curl \
         libopenblas-dev \
         python-numpy \
         python-dev \
@@ -19,3 +21,28 @@ RUN pip install matplotlib && \
     pip install tensorflow-gpu && \
     rm -rf /root/.cache/pip/*
     
+COPY . /delf-extract
+WORKDIR /delf-extract
+
+#ENV BLASLDFLAGS /usr/lib/libopenblas.so.0
+
+
+#DELF from tensorflow models/research
+ENV TF_MODELS_REVISION=4c05414826e87f3b8ef05
+ENV TENSORFLOW_MODELS_ROOT models
+
+RUN git clone https://github.com/tensorflow/models.git $TENSORFLOW_MODELS_ROOT && \
+    git checkout $TF_MODELS_REVISION -- $TENSORFLOW_MODELS_ROOT && \
+    pip install -e $TENSORFLOW_MODELS_ROOT/research/slim && \
+    pip install -e $TENSORFLOW_MODELS_ROOT/research/delf && \
+    mkdir -p tmp && wget https://github.com/google/protobuf/releases/download/v3.3.0/protoc-3.3.0-linux-x86_64.zip -O protoc.zip && unzip protoc.zip -d tmp && \
+    tmp/bin/protoc --proto_path=$TENSORFLOW_MODELS_ROOT/research/delf $TENSORFLOW_MODELS_ROOT/research/delf/delf/protos/*.proto --python_out=$TENSORFLOW_MODELS_ROOT/research/delf && \
+    rm -r tmp && rm protoc.zip && \
+    wget http://download.tensorflow.org/models/delf_v1_20171026.tar.gz && \
+    mkdir -p parameters && tar xf delf_v1_20171026.tar.gz -C parameters && \
+    rm delf*tar.gz && \
+    python -c 'import delf'
+
+ENV PYTHONPATH $TENSORFLOW_MODELS_ROOT/research:$PYTHONPATH
+
+
